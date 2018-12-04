@@ -5,7 +5,8 @@
   <p>
     {{ items[0].name }}: {{ items[0].price }} × {{ items[0].quantity }}
   </p>
-  <p>フィルタ処理例{{1000 | numberWithDelimiter}}</p>
+  <p>小計：{{ totalPrice | numberWithDelimiter }}円</p>
+　<p>合計（税込み）：{{ totalPriceWithTax | numberWithDelimiter }}円</p>
 </div>
 
 <script src="app.js"></script>
