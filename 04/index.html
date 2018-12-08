@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+<style>
+</style>
 <html>
   <head>
     <meta charset="UTF-8">
@@ -6,38 +8,99 @@
   </head>
   <body>
     <div id="app">
-      <router-link to="/top">トップページ</router-link>
-      <router-link to="/users">ユーザー一覧ページ</router-link>
+      <nav>
+        <!-- router-link によるナビゲーション定義 -->
+        <router-link to="/top">トップページ</router-link>
+        <router-link to="/users">ユーザ一覧ページ</router-link>
+      </nav>
       <router-view></router-view>
     </div>
 
     <!-- Vue.js本体とVueRouterの読み込み -->
     <script src="https://unpkg.com/vue@2.5.17"></script>
     <script src="https://unpkg.com/vue-router@3.0.1"></script>
+
+    <script type="text/x-template" id="user-list">
+      <div>
+        <div class="loading" v-if="loading">読み込み中...</div>
+        <div v-if="error" class="error">
+          {{ error }}
+        </div>
+        <!-- usersがロードされたら各ユーザーの名前を表示する -->
+        <div v-for="user in users" :key="user.id">
+          <h2>{{ user.name }}</h2>
+        </div>
+      </div>
+    </script>
+
     <script>
-    // ロートオプションを渡してルーターインスタンスを生成
-    var router = new VueRouter({
-      // コンポーネントをマッピングしたルート定義を配列で渡す
-      routes: [
-        {
-          path: '/top',
-          component: {
-            template: '<div>トップページです。</div>'
+      // 擬似的なWebAPIとして JSON を返す関数
+      var getUsers = function(callback) {
+        setTimeout(function() {
+          callback(null, [
+            {
+              id: 1,
+              name: 'Takuya Tejima'
+            },
+            {
+              id: 2,
+              name: 'Yohei Noda'
+            }
+          ])
+        }, 1000)
+      }
+      var UserList = {
+        template: '#user-list',
+        data: function() {
+          return {
+            loading: false,
+            users: function() { return [] },
+            error: null
           }
         },
-        {
-          path: '/users',
-          component: {
-            template: '<div>ユーザー一覧ページです。</div>'
+        // 初期化時にデータ取得
+        created :function() {
+          this.fetchData()
+        },
+        // $route の変更を watch することでルーティングが変更されたときに再度データ取得
+        watch: {
+          '$route': 'fetchData'
+        },
+        methods: {
+          fetchData: function() {
+            this.loading = true
+            getUsers((function(err, users) {
+              this.loading = false
+              if(err) {
+                this.error = err.toString()
+              } else {
+                this.users = users
+              }
+            }).bind(this))
           }
         }
-      ]
-    })
-  
-    // ルーターのインスタンスを root となる Vue インスタンスに渡す
-    var app = new Vue({
-      router :router
-    }).$mount('#app')
+      }
+
+      var router = new VueRouter({
+        routes: [
+          {
+            path: '/top',
+            component: {
+              template: '<div>トップページです。</div>'
+            }
+          },
+          {
+            path: '/users',
+            component: UserList
+          }
+        ]
+      })
+
+      var app = new Vue({
+        router :router
+      }).$mount('#app')
+
+
     </script>
   </body>
 </html>
