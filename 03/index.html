@@ -2,30 +2,45 @@
 <title>Vue.jsのコンポーネント</title>
 <script src="https://unpkg.com/vue@2.5.17"></script>
 
-<div id="fruits-component">
-  <ol>
-    <ftuits-item-name v-for="fruit in fruitsItems" :key="fruit.name" :fruits-item="fruit"></ftuits-item-name>
-  </ol>
+<div id="fruits-counter">
+  <div v-for="fruit in fruits">
+    {{ fruit.name }}: <counter-button v-on:increment="incrementCartStatus()"></counter-button>
+  </div>
+  <p>合計：{{ total }}</p>
 </div>
 
 <script>
-Vue.component('ftuits-item-name', {
-  props: {
-    fruitsItem: {
-      type: Object,
-      required: true
+var counterButton = Vue.extend({
+  template: '<span>{{ counter }}個<button v-on:click="addToCart">追加</button></span>',
+  data: function() {
+    return {
+      counter: 0
     }
   },
-  template: '<li>{{ fruitsItem.name }}</li>'
+  methods: {
+    addToCart: function() {
+      this.counter += 1
+      this.$emit('increment')
+    }
+  }
 })
 
 new Vue({
-  el: '#fruits-component',
+  el: '#fruits-counter',
+  components: {
+    'counter-button': counterButton
+  },
   data: {
-    fruitsItems: [
-      {name: '梨'},
-      {name: 'いちご'}
+    total: 0,
+    fruits: [
+      { name: '梨' },
+      { name: 'いちご' }
     ]
+  },
+  methods: {
+    incrementCartStatus: function() {
+      this.total += 1
+    }
   }
 })
 </script>
