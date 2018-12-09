@@ -36,9 +36,23 @@ const store = new Vuex.Store({
         text: '本'
       }
     ],
-　　 // 次に追加するタスク、ラベルのID
+
     nextTaskId: 3,
-    nextLabelId: 4
+    nextLabelId: 4,
+    filter: null
+  },
+  getters: {
+    // フィルタ後のタスクを返す
+    filteredTasks(state) {
+      // ラベルが選択されていなければそのままの一覧を返す
+      if(!state.filter) {
+        return state.tasks
+      }
+      // 選択されているラベルでフィルタリングする
+      return state.tasks.filter(tasks => {
+        return tasks.labelIds.indexOf(state.filter) >= 0
+      })
+    }
   },
   mutations: {
     addTask(state, { name, labelIds }) {
@@ -48,6 +62,7 @@ const store = new Vuex.Store({
         labelIds,
         done: false
       })
+      // 次に追加されるタスクに付与するIDを更新
       state.nextTaskId++
     },
     toggleTaskStatus(state, { id }) {
@@ -65,6 +80,10 @@ const store = new Vuex.Store({
         text
       })
       state.nextLabelId++
+    },
+    // フィルタリング対象のラベルを変更
+    changeFilter(state, { filter }) {
+      state.filter = filter
     }
   }
 })
